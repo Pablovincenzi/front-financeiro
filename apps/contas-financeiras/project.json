@@ -1,0 +1,114 @@
+{
+  "name": "contas-financeiras",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/contas-financeiras/src",
+  "tags": [
+    "scope:contas-financeiras",
+    "type:app"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:webpack-browser",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/apps/contas-financeiras",
+        "index": "apps/contas-financeiras/src/index.html",
+        "polyfills": [
+          "zone.js"
+        ],
+        "tsConfig": "apps/contas-financeiras/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/contas-financeiras/public",
+            "output": "."
+          }
+        ],
+        "styles": [
+          "apps/contas-financeiras/src/styles.scss"
+        ],
+        "scripts": [],
+        "main": "apps/contas-financeiras/src/main.ts",
+        "customWebpackConfig": {
+          "path": "apps/contas-financeiras/webpack.config.js"
+        },
+        "commonChunk": false
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all",
+          "customWebpackConfig": {
+            "path": "apps/contas-financeiras/webpack.prod.config.js"
+          }
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nx/angular:dev-server",
+      "options": {
+        "port": 4201,
+        "publicHost": "http://localhost:4201"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "contas-financeiras:build:production"
+        },
+        "development": {
+          "buildTarget": "contas-financeiras:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "extract-i18n": {
+      "executor": "ngx-build-plus:extract-i18n",
+      "options": {
+        "buildTarget": "contas-financeiras:build",
+        "extraWebpackConfig": "apps/contas-financeiras/webpack.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "apps/contas-financeiras/jest.config.ts"
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "contas-financeiras:build",
+        "port": 4201,
+        "staticFilePath": "dist/apps/contas-financeiras/browser",
+        "spa": true
+      }
+    }
+  }
+}
