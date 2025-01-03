@@ -1,27 +1,136 @@
-image: node:20
-variables:
-  CI: 'true'
+image: node:18-alpine
+stages:
+  - setup
+  - test
+  - build
 
-# Main job
-CI:
+variables:
+  TZ: "America/Sao_Paulo"
+  npm_config_cache: '$CI_PROJECT_DIR/.npm'
+  CYPRESS_CACHE_FOLDER: '$CI_PROJECT_DIR/cache/Cypress'
+  SKIP_E2E:
+    value: "false"
+    options:
+      - "false"
+      - "true"
+    description: "Skip e2e"
+  SKIP_COMPONENT_TEST:
+    value: "false"
+    options:
+      - "false"
+      - "true"
+    description: "Skip component-testing"
+  COMMIT_BEFORE_SHA:
+    description: "Commit anterior para ser usado como referência em pipelines manuais"
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm
+    - cache/Cypress
+    - node_modules
+    - .nx
+
+install-dependencies:
+  stage: setup
   interruptible: true
   only:
-    - main
+    - master
+    - develop
     - merge_requests
+    - homologacao
   script:
-    # This enables task distribution via Nx Cloud
-    # Run this command as early as possible, before dependencies are installed
-    # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
-    # Uncomment this line to enable task distribution
-    # - npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
+    - if [ -d "node_modules" ]; then echo "Cache encontrado, ignorando npm ci"; exit 0; fi
+    - npm ci --cache .npm --prefer-offline
 
-    - npm ci --legacy-peer-deps
-    - npx cypress install
+.distributed:
+  interruptible: true
+  only:
+    - master
+    - develop
+    - merge_requests
+    - homologacao
+  needs:
+    - install-dependencies
+  before_script:
+    - mkdir -p .nx/cache
     - NX_HEAD=$CI_COMMIT_SHA
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
+    - if [ "$NX_BASE" == "0000000000000000000000000000000000000000" ]; then
+        NX_BASE="$COMMIT_BEFORE_SHA";
+      fi;
+    - echo $NX_HEAD
+    - echo $NX_BASE
 
-    # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
-    # - npx nx-cloud record -- echo Hello World
-    # Nx Affected runs only tasks affected by the changes in this PR/commit. Learn more: https://nx.dev/ci/features/affected
-    # When you enable task distribution, run the e2e-ci task instead of e2e
-    - npx nx affected -t lint test build e2e
+lint:
+  stage: test
+  extends: .distributed
+  script:
+    - apk add --no-cache git
+    - npx nx affected:lint --base=$NX_BASE --head=$NX_HEAD --parallel=4 --maxWarnings=0
+
+component-test:
+  image: cypress/browsers:node18.12.0-chrome107
+  stage: test
+  extends: .distributed
+  timeout: 4 hours
+  script:
+    - cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+    - echo "America/Sao_Paulo" > /etc/timezone
+    - if [ $SKIP_COMPONENT_TEST == 'true' ]; then exit 0; fi
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t component-test --parallel 1
+  artifacts:
+    expire_in: 2 days
+    when: on_failure
+    name: '${CI_BUILD_REF_NAME}_${CI_BUILD_REF}'
+    paths:
+      - dist/cypress/**/*.mp4
+      - dist/cypress/**/*.png
+
+e2e:
+  image: cypress/browsers:node18.12.0-chrome107
+  stage: test
+  extends: .distributed
+  timeout: 4 hours
+  resource_group: job_e2e
+  script:
+    - cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+    - echo "America/Sao_Paulo" > /etc/timezone
+    - if [ $SKIP_E2E == 'true' ]; then exit 0; fi
+    - MICROFRONTENDS_AFETADOS=$(npx nx show projects --affected -t e2e --base=$NX_BASE --head=$NX_HEAD --exclude='tag:scope:shell')
+    # Se a lista de microfrontends afetados não estiver vazia, prossegue com o deploy
+    - if [ ! -z "$MICROFRONTENDS_AFETADOS" ]; then
+        npx start-server-and-test 'npx nx serve shell 1> /dev/null 2>&1' http-get://localhost:4200 "bash e2e.sh $(echo $MICROFRONTENDS_AFETADOS) --NX_BASE=$NX_BASE --NX_HEAD=$NX_HEAD";
+      fi;
+  artifacts:
+    expire_in: 2 days
+    when: always
+    name: '${CI_BUILD_REF_NAME}_${CI_BUILD_REF}'
+    paths:
+      - report-e2e/*
+
+deploy:
+  stage: build
+  extends: .distributed
+  timeout: 4 hours
+  needs: ['install-dependencies', 'lint', 'component-test', 'e2e']
+  only:
+    - develop
+    - homologacao
+    - master
+  when: manual
+  script:
+    - apk add -q --no-cache git python3 py3-pip wget bash
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t build
+    - MICROFRONTENDS_AFETADOS=$(npx nx show projects --affected -t build --base=$NX_BASE --head=$NX_HEAD)
+
+    # Se a lista de microfrontends afetados não estiver vazia, prossegue com o deploy
+    - if [ ! -z "$MICROFRONTENDS_AFETADOS" ]; then
+        wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-473.0.0-linux-x86_64.tar.gz -O - | tar -zx;
+        google-cloud-sdk/install.sh -q --usage-reporting=false --additional-components beta;
+        echo $GCLOUD_SERVICE_KEY > key.json;
+        google-cloud-sdk/bin/gcloud -q auth activate-service-account --key-file=key.json;
+        bash deploy.sh;
+      fi;

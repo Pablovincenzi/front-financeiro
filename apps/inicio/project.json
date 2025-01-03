@@ -109,7 +109,7 @@
     "serve-mfe": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": ["nx serve inicio", "nx serve contas-financeiras"]
+        "commands": ["nx serve contas-financeiras", "nx serve inicio"]
       }
     },
     "component-test": {

@@ -8,13 +8,7 @@
       "runner": "nx/tasks-runners/default",
       "options": {
         "cacheDirectory": ".nx/cache",
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e",
-          "component-test"
-        ],
+        "cacheableOperations": ["build", "lint", "test", "e2e", "component-test"],
         "parallel": 3
       }
     }

@@ -1,0 +1,226 @@
+{
+  "root": true,
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nx"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [
+              {
+                "sourceTag": "type:app",
+                "onlyDependOnLibsWithTags": [
+                  "type:feature",
+                  "type:ui",
+                  "type:util",
+                  "type:data-access"
+                ]
+              },
+              {
+                "sourceTag": "type:feature",
+                "onlyDependOnLibsWithTags": [
+                  "type:ui",
+                  "type:util",
+                  "type:data-access",
+                  "type:feature"
+                ]
+              },
+              {
+                "sourceTag": "type:ui",
+                "onlyDependOnLibsWithTags": ["type:ui", "type:util"]
+              },
+              {
+                "sourceTag": "type:data-access",
+                "onlyDependOnLibsWithTags": ["type:data-access", "type:util"]
+              },
+              {
+                "sourceTag": "type:util",
+                "onlyDependOnLibsWithTags": ["type:util"]
+              },
+              {
+                "sourceTag": "scope:shared",
+                "onlyDependOnLibsWithTags": ["scope:shared"]
+              },
+              {
+                "sourceTag": "scope:login",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:login"]
+              },
+              {
+                "sourceTag": "scope:shell",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:shell"]
+              },
+              {
+                "sourceTag": "scope:grupo-pessoa",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:grupo-pessoa"]
+              },
+              {
+                "sourceTag": "scope:pessoa",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:pessoa", "scope:grupo-pessoa"]
+              },
+              {
+                "sourceTag": "scope:empresa",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:empresa"]
+              },
+              {
+                "sourceTag": "scope:administrador",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:administrador"]
+              },
+              {
+                "sourceTag": "scope:usuario",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:administrador", "scope:usuario"]
+              },
+              {
+                "sourceTag": "scope:perfil-usuario",
+                "onlyDependOnLibsWithTags": [
+                  "scope:shared",
+                  "scope:administrador",
+                  "scope:perfil-usuario"
+                ]
+              },
+              {
+                "sourceTag": "scope:marca",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:marca"]
+              },
+              {
+                "sourceTag": "scope:unidade",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:unidade"]
+              },
+              {
+                "sourceTag": "scope:parametro",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:parametro"]
+              },
+              {
+                "sourceTag": "scope:estrutura-mercadologica",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:estrutura-mercadologica"]
+              },
+              {
+                "sourceTag": "scope:produto",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:produto"]
+              },
+              {
+                "sourceTag": "scope:operacao-estoque",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:operacao-estoque"]
+              },
+              {
+                "sourceTag": "scope:kit-produto",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:kit-produto"]
+              },
+              {
+                "sourceTag": "scope:condicao-pagamento",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:condicao-pagamento"]
+              },
+              {
+                "sourceTag": "scope:forma-pagamento",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:forma-pagamento"]
+              },
+              {
+                "sourceTag": "scope:tipo-limite",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:tipo-limite"]
+              },
+              {
+                "sourceTag": "scope:cartao-limite",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:cartao-limite"]
+              },
+              {
+                "sourceTag": "scope:conta-financeira",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:conta-financeira"]
+              },
+              {
+                "sourceTag": "scope:codigo-referencia",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:codigo-referencia"]
+              },
+              {
+                "sourceTag": "scope:nota-entrada",
+                "onlyDependOnLibsWithTags": [
+                  "scope:shared",
+                  "scope:nota-fiscal",
+                  "scope:nota-entrada"
+                ]
+              },
+              {
+                "sourceTag": "scope:persona",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:persona"]
+              },
+              {
+                "sourceTag": "scope:administradora",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:administradora"]
+              },
+              {
+                "sourceTag": "scope:promocao",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:promocao"]
+              },
+              {
+                "sourceTag": "scope:conciliacao-nfe",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:conciliacao-nfe"]
+              },
+              {
+                "sourceTag": "scope:documento-tesouraria",
+                "onlyDependOnLibsWithTags": [
+                  "scope:shared",
+                  "scope:documento-tesouraria",
+                  "scope:movimento"
+                ]
+              },
+              {
+                "sourceTag": "scope:nota-saida",
+                "onlyDependOnLibsWithTags": [
+                  "scope:shared",
+                  "scope:nota-fiscal",
+                  "scope:nota-saida"
+                ]
+              },
+              {
+                "sourceTag": "scope:nota-fiscal",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:nota-fiscal"]
+              },
+              {
+                "sourceTag": "scope:manutencao-preco",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:manutencao-preco"]
+              },
+              {
+                "sourceTag": "scope:movimento-financeiro-pdv",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:movimento-financeiro-pdv"]
+              },
+              {
+                "sourceTag": "scope:familia-preco",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:familia-preco"]
+              },
+              {
+                "sourceTag": "scope:campanha-cashback",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:campanha-cashback"]
+              },
+              {
+                "sourceTag": "scope:relatorio-preco-etiqueta",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:relatorio-preco-etiqueta"]
+              },
+              {
+                "sourceTag": "scope:sincronizacao-pdv",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:sincronizacao-pdv"]
+              },
+              {
+                "sourceTag": "scope:relatorio-conferencia-sped",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:relatorio-conferencia-sped"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@nx/typescript"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["plugin:@nx/javascript"],
+      "rules": {}
+    }
+  ],
+  "extends": []
+}

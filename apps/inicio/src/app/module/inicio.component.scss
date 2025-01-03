@@ -1,0 +1,50 @@
+@import 'variables';
+
+.page {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  // ! Necessário para não quebrar colunas nas listagens com resolução menor que a mínima
+  min-width: 991px;
+
+  .router {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+    height: calc(100% - #{$altura-toolbar});
+    background-color: var(--background);
+
+    &.chatbot-aberto {
+      width: calc(100% - #{$largura-chatbot});
+    }
+
+    nz-skeleton-element {
+      height: 100%;
+
+      ::ng-deep {
+        span {
+          width: 100%;
+          height: 100% !important;
+        }
+      }
+    }
+  }
+
+  sysmo-cloud-chatbot {
+    position: absolute;
+    right: 0;
+    top: $altura-toolbar;
+  }
+}
+
+sysmo-cloud-menu-lateral {
+  flex: none;
+}

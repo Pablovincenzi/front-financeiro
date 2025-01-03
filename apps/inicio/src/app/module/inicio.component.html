@@ -1,0 +1,25 @@
+<div class="page">
+    <sysmo-cloud-menu-lateral [requestingMenus]="requesting" [itens]="menus"
+        [codigoUsuarioLogado]="toolbar?.usuario?.id" (eventClickLogo)="voltarAoInicio()" />
+
+    <div class="container">
+        <sysmo-cloud-toolbar #toolbar [empresas]="empresas" [menus]="menus"
+            (eventToogleChatbot)="chatbotAberto = !chatbotAberto"
+            (eventMostrarNotificacoes)="painelNotificacoes.abrirPainel()"
+            [numeroNotificacoes]="painelNotificacoes.numeroNotificacoes" />
+
+        <div class="router" [class.chatbot-aberto]="chatbotAberto">
+            <ng-container *ngIf="!requesting; else templateSkeleton">
+                <router-outlet />
+            </ng-container>
+
+            <ng-template #templateSkeleton>
+                <nz-skeleton-element nzType="input" [nzActive]="true" />
+            </ng-template>
+        </div>
+
+        <sysmo-cloud-chatbot *ngIf="chatbotAberto" (eventFecharChatbot)="chatbotAberto = false" />
+    </div>
+</div>
+
+<sysmo-cloud-painel-notificacoes #painelNotificacoes />

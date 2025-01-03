@@ -1,1 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+
+.submenu-overlay-pane {
+  top: 0 !important;
+  animation: appear 0.5s ease-in;
+}
